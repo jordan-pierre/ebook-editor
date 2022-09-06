@@ -29,4 +29,20 @@ for FILE in tmp/$FILE_ROOT/OEBPS/*.xhtml
 do
     # 5. Replace all instances of original character with desired character
     echo $FILE
+    sed -i "s/’/'/g" $FILE
+    sed -i "s/“/\"/g" $FILE
+    sed -i "s/”/\"/g" $FILE
+    sed -i "s/—/-/g" $FILE
+    sed -i "s/—/-/g" $FILE
+    sed -i "s/&#nbsp;//g" $FILE
+    while read -r LINE; do
+        echo -e $LINE
+    done < $FILE
 done
+
+# 6. Re-zip directory to `zip` file
+mkdir -p outputs/
+zip -r outputs/$FILE_ROOT.zip tmp/$FILE_ROOT 
+
+# 7. Convert `zip` file to `epub`
+mv outputs/$FILE_ROOT.zip outputs/$FILE_ROOT.epub 
