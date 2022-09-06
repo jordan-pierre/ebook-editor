@@ -10,6 +10,7 @@
 # 6. Re-zip directory to `zip` file
 # 7. Convert `zip` file to `epub`
 
+
 # 1. Take `epub` file
 FILE_ROOT="the_obstacle_is_the_way" # TODO: loop for all `.epub` files in `inputs/` directory
 INPUT_FILE="inputs/$FILE_ROOT.epub"
@@ -33,16 +34,18 @@ do
     sed -i "s/“/\"/g" $FILE
     sed -i "s/”/\"/g" $FILE
     sed -i "s/—/-/g" $FILE
-    sed -i "s/—/-/g" $FILE
-    sed -i "s/&#nbsp;//g" $FILE
-    while read -r LINE; do
-        echo -e $LINE
-    done < $FILE
+    sed -i "s/ //g" $FILE
+    # while read -r LINE; do
+    #     echo -e $LINE
+    # done < $FILE
 done
 
-# 6. Re-zip directory to `zip` file
-mkdir -p outputs/
-zip -r outputs/$FILE_ROOT.zip tmp/$FILE_ROOT 
+# 6. Re-zip directory as `epub` file
+NEW_EPUB=$FILE_ROOT.epub
+cd tmp/$FILE_ROOT
+zip -rX ../$NEW_EPUB mimetype META-INF/ OEBPS/
 
-# 7. Convert `zip` file to `epub`
-mv outputs/$FILE_ROOT.zip outputs/$FILE_ROOT.epub 
+cd ../..
+mkdir -p outputs/ 
+mv tmp/$NEW_EPUB outputs/$NEW_EPUB
+
