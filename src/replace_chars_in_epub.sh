@@ -12,40 +12,48 @@
 
 
 # 1. Take `epub` file
-FILE_ROOT="the_obstacle_is_the_way" # TODO: loop for all `.epub` files in `inputs/` directory
-INPUT_FILE="inputs/$FILE_ROOT.epub"
-
-# 2. Convert `epub` file to `zip` file
-mkdir -p tmp/
-TEMP_ZIP="tmp/$FILE_ROOT.zip"
-
-cp $INPUT_FILE $TEMP_ZIP
-
-# 3. Un-zip new `zip` file
-mkdir -p tmp/$FILE_ROOT/
-unzip $TEMP_ZIP -d tmp/$FILE_ROOT
-
-# 4. Open all `xhtml` file in unzipped directory
-for FILE in tmp/$FILE_ROOT/OEBPS/*.xhtml
+for EPUB in inputs/*.epub 
 do
-    # 5. Replace all instances of original character with desired character
-    echo $FILE
-    sed -i "s/’/'/g" $FILE
-    sed -i "s/“/\"/g" $FILE
-    sed -i "s/”/\"/g" $FILE
-    sed -i "s/—/-/g" $FILE
-    sed -i "s/ //g" $FILE
-    # while read -r LINE; do
-    #     echo -e $LINE
-    # done < $FILE
+    echo $EPUB
+    mv "$EPUB" ${EPUB// /_}
+    EPUB=${EPUB// /_}
+
+    regex="inputs/(.*).epub"
+    [[ $EPUB =~ $regex ]]
+    FILE_ROOT=${BASH_REMATCH[1]}
+
+    # 2. Convert `epub` file to `zip` file
+    mkdir -p tmp/
+    TEMP_ZIP="tmp/$FILE_ROOT.zip"
+    echo "cp" $EPUB $TEMP_ZIP
+
+    cp $EPUB $TEMP_ZIP
+
+    # 3. Un-zip new `zip` file
+    mkdir -p tmp/$FILE_ROOT/
+    unzip $TEMP_ZIP -d tmp/$FILE_ROOT
+
+    # 4. Open all `xhtml` file in unzipped directory
+    for FILE in tmp/$FILE_ROOT/OEBPS/*.xhtml
+    do
+        # 5. Replace all instances of original character with desired character
+        echo $FILE
+        sed -i "s/’/'/g" $FILE
+        sed -i "s/“/\"/g" $FILE
+        sed -i "s/”/\"/g" $FILE
+        sed -i "s/—/-/g" $FILE
+        sed -i "s/ //g" $FILE
+        # while read -r LINE; do
+        #     echo -e $LINE
+        # done < $FILE
+    done
+
+    # 6. Re-zip directory as `epub` file
+    NEW_EPUB=$FILE_ROOT.epub
+    cd tmp/$FILE_ROOT
+    zip -rX ../$NEW_EPUB mimetype META-INF/ OEBPS/
+
+    cd ../..
+    mkdir -p outputs/ 
+    mv tmp/$NEW_EPUB outputs/$NEW_EPUB
 done
-
-# 6. Re-zip directory as `epub` file
-NEW_EPUB=$FILE_ROOT.epub
-cd tmp/$FILE_ROOT
-zip -rX ../$NEW_EPUB mimetype META-INF/ OEBPS/
-
-cd ../..
-mkdir -p outputs/ 
-mv tmp/$NEW_EPUB outputs/$NEW_EPUB
-
